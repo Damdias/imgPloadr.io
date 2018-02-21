@@ -4,6 +4,7 @@ const fs = require("fs");
 class ImageController {
     constructor() {
         this.images = [];
+        this.likes= 0;
     }
     index(req, res) {
      
@@ -48,12 +49,10 @@ class ImageController {
                 });
             });
         }
-
-
-       // res.render("index", { images: this.images });
     }
     like(req, res) {
-        res.send("The image: like post controller");
+        this.likes += 1;
+        res.send({likes:this.likes});
     }
     comments(req, res) {
         res.send("The image: comment POST controller");

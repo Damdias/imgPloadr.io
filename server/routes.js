@@ -23,7 +23,7 @@ module.exports = (app)=>{
     router.post("/create", homeController.create);
     router.get("/images/:image_id",imageController.index);
     router.post("/images",upload.single('file'),(req,res)=>imageController.create(req,res));
-    router.post("/images/:image_id/like",imageController.like);
+    router.post("/images/:image_id/like",(req,res)=>{imageController.like(req,res)});
     router.post("/images/:image_id/comment",imageController.comments);
     app.use(router);
     return app;
