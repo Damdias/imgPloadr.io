@@ -1,11 +1,18 @@
-const sidebar = require("../helpers/sidebar");
+const sidebar = require("../helpers/sidebar"),
+      ImageModel = require("../models").ImageModel;
 class HomeController{
     index(req,res){
         let viewmodel = {title:"home"};
-
-        sidebar(viewmodel,(vmodel)=>{
-            res.render("index",vmodel);
+        ImageModel.find({},{},{sort:{timestamp:-1}},(err,images)=>{
+            if(err){
+                throw err;
+            }
+            viewmodel.images = images;
+            sidebar(viewmodel,(vmodel)=>{
+                res.render("index",vmodel);
+            });
         });
+       
        
     }
     create(req,res){

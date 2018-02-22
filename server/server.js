@@ -2,6 +2,12 @@ const express = require("express");
 const configure = require("./configure");
 const path = require("path");
 let app = express();
+const mongoose = require("mongoose");
+
+mongoose.connect("MongoDB://localhost:27017/ImgPolandrs");
+mongoose.connection.on("open",function(){
+ console.log("mongoose connectes");
+});
 
 
 app.set("port", process.env.PORT || 3300);
