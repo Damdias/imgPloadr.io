@@ -1,6 +1,8 @@
 const path = require("path");
 const fs = require("fs");
 const ImageModel = require("../models").ImageModel;
+const CommentModel = require("../models").CommentModel;
+const md5 = require("md5");
 
 class ImageController {
     constructor() {
@@ -9,24 +11,20 @@ class ImageController {
     }
     index(req, res) {
         const ViewModel = {
-            image: { uniqueId: 1, title: 'Sample	Image	1', description: 'This	is	a	sample.', filename: req.params.image_id, Views: 0, likes: 0, timestamp: Date.now() },
-            comments: [
-                { image_id: 1, email: 'test@testing.com', name: 'Test	Tester', gravatar: 'http://lorempixel.com/75/75/animals/1', comment: 'This	is	a	test	comment...', timestamp: Date.now() },
-                { image_id: 1, email: 'test@testing.com', name: 'Test	Tester', gravatar: 'http://lorempixel.com/75/75/animals/2', comment: 'Another	followup	comment!', timestamp: Date.now() }
-            ]
+            image: {},
+            comments: []
         };
         ImageModel.findOne({ filename: { $eq: req.params.image_id } }, (err, image) => {
             if (err) throw err;
             ViewModel.image = image;
-            res.render("image", ViewModel);
+            CommentModel.find({ image_id: { $eq: image._id } }, (err, comments) => {
+                ViewModel.comments = comments;
+                res.render("image", ViewModel);
+            });
+
         });
-
-
     }
     create(req, res) {
-        console.log(req.body);
-        console.log(req.file);
-        console.log(req.file.path);
         let nextid = this.images.length + 1;
         this.images.push({
             uniqueId: nextid,
@@ -82,7 +80,20 @@ class ImageController {
 
     }
     comments(req, res) {
-        res.send("The image: comment POST controller");
+        ImageModel.findOne({ filename: { $eq: req.params.image_id } }, (err, image) => {
+            if (err) res.redirect("/");
+            let newcomment = new CommentModel();
+            newcomment.name = req.body.name;
+            newcomment.email = req.body.email;
+            newcomment.comment = req.body.comment;
+            newcomment.image_id = image._id;
+            newcomment.gravatar = md5(req.body.email);
+            newcomment.save(err, (c) => {
+                res.redirect(`/images/${image.filename}#${newcomment._id}`);
+            });
+
+        });
+        // res.send("The image: comment POST controller");
     }
 }
 
